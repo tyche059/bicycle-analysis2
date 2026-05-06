@@ -46,11 +46,11 @@ def get_font_path():
 # ---------------------------------------------------------
 st.header("1️⃣ 인기있는 대여소 Top 5")
 sql1 = """
-SELECT A.보관소명, SUM(B.이용건수) as 총이용건수
-FROM 이용정보 B
-JOIN 대여소 A ON B.대여소번호 = A.대여소번호
-GROUP BY A.보관소명
-ORDER BY 총이용건수 DESC
+SELECT 대여소.보관소명, SUM(이용정보.이용건수) AS 이용건수 
+FROM 대여소 
+JOIN 이용정보 ON 대여소.대여소번호 = 이용정보.대여소번호
+GROUP BY 대여소.대여소번호, 대여소.보관소명
+ORDER BY 이용건수 DESC
 LIMIT 5
 """
 df1 = load_data(sql1)
@@ -85,15 +85,15 @@ st.divider() # 구분선
 # ---------------------------------------------------------
 st.header("2️⃣ 강수량에 따른 대여량 변화")
 sql2 = """
-SELECT B.대여일자, SUM(B.이용건수) as 총대여량, R.강수량
-FROM (
-    SELECT 대여일자, SUM(이용건수) as 이용건수 
-    FROM 이용정보 
-    GROUP BY 대여일자
-) B
-LEFT JOIN 강수량 R ON B.대여일자 = R.년월
-GROUP BY B.대여일자, R.강수량
-ORDER BY B.대여일자
+SELECT 
+    이용정보.대여일자 AS 년월,
+    강수량.강수량,
+    SUM(이용정보.이용건수) AS 대여량
+FROM 이용정보
+JOIN 강수량 
+ON 이용정보.대여일자 = 강수량.년월
+GROUP BY 이용정보.대여일자, 강수량.강수량
+ORDER BY 이용정보.대여일자
 """
 df2 = load_data(sql2)
 
@@ -129,21 +129,22 @@ st.divider()
 # ---------------------------------------------------------
 st.header("3️⃣ 성별별 이용도가 높은 자치구 Top 5")
 sql3 = """
-WITH Top5Gu AS (
-    SELECT A.자치구, SUM(B.이용건수) as 구별총건수
-    FROM 이용정보 B
-    JOIN 대여소 A ON B.대여소번호 = A.대여소번호
-    GROUP BY A.자치구
-    ORDER BY 구별총건수 DESC
-    LIMIT 5
+SELECT * FROM (
+    SELECT 
+        대여소.자치구,
+        이용정보.성별,
+        SUM(이용정보.이용건수) AS 총이용건수,
+        RANK() OVER (
+            PARTITION BY 이용정보.성별       -- 성별이 바뀔 때마다 순위 초기화
+            ORDER BY SUM(이용정보.이용건수) DESC
+        ) AS 순위
+    FROM 대여소, 이용정보
+    WHERE 대여소.대여소번호 = 이용정보.대여소번호
+        AND 이용정보.성별 IS NOT NULL
+    GROUP BY 대여소.자치구, 이용정보.성별
 )
-SELECT A.자치구, B.성별, SUM(B.이용건수) as 총이용건수
-FROM 이용정보 B
-JOIN 대여소 A ON B.대여소번호 = A.대여소번호
-JOIN Top5Gu T ON A.자치구 = T.자치구
-WHERE B.성별 IN ('M', 'F') /* 결측치나 이상치 제외 */
-GROUP BY A.자치구, B.성별
-ORDER BY T.구별총건수 DESC
+WHERE 순위 <= 5
+ORDER BY 성별, 순위
 """
 df3 = load_data(sql3)
 
