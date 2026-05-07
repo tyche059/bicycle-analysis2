@@ -46,11 +46,11 @@ def get_font_path():
 # ---------------------------------------------------------
 st.header("1️⃣ 인기있는 대여소 Top 5")
 sql1 = """
-SELECT 대여소.보관소명, SUM(이용정보.이용건수) AS 이용건수 
+SELECT 대여소.보관소명, SUM(이용정보.이용건수) AS 총이용건수 
 FROM 대여소 
 JOIN 이용정보 ON 대여소.대여소번호 = 이용정보.대여소번호
 GROUP BY 대여소.대여소번호, 대여소.보관소명
-ORDER BY 이용건수 DESC
+ORDER BY 총이용건수 DESC
 LIMIT 5
 """
 df1 = load_data(sql1)
