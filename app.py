@@ -17,10 +17,10 @@ st.title("🚲 공공자전거 이용 분석 대시보드")
 st.markdown("SQLite 데이터베이스와 Streamlit을 활용한 데이터 분석 결과입니다.")
 
 # DB 파일 존재 여부 확인 (친절한 에러 메시지)
-db_path = "자전거분.db"
+db_path = "bicycle.db"
 if not os.path.exists(db_path):
-    st.error("🚨 앗! '자전거분.db' 파일을 찾을 수 없습니다.")
-    st.warning("app.py와 같은 폴더에 '자전거분.db' 파일이 있는지 다시 한 번 확인해 주세요!")
+    st.error("🚨 앗! 'bicycle.db' 파일을 찾을 수 없습니다.")
+    st.warning("app.py와 같은 폴더에 'bicycle.db' 파일이 있는지 다시 한 번 확인해 주세요!")
     st.stop() # DB가 없으면 여기서 실행을 멈춥니다.
 
 # DB 쿼리 실행을 위한 도우미 함수
