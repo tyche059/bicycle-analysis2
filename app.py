@@ -70,7 +70,7 @@ with col2:
     word_dict = dict(zip(df1['보관소명'], df1['총이용건수']))
     
     font_path = get_font_path()
-    wc = WordCloud(font_path=font_path, width=400, height=400, background_color='white', colormap='Set2')
+    wc = WordCloud(font_path="H2GTRM.TTF", width=400, height=400, background_color='white', colormap='Set2')
     wordcloud = wc.generate_from_frequencies(word_dict)
     
     fig1, ax1 = plt.subplots(figsize=(5, 5))
@@ -105,12 +105,12 @@ with col3:
     fig2 = make_subplots(specs=[[{"secondary_y": True}]])
     
     # 막대 그래프 (강수량)
-    fig2.add_trace(go.Bar(x=df2.index, y=df2['강수량'], name="강수량(mm)", opacity=0.5, marker_color='blue'), secondary_y=False)
+    fig2.add_trace(go.Bar(x=df2['년월'], y=df2['강수량'], name="강수량", opacity=0.5, marker_color='blue'), secondary_y=False)
     # 꺾은선 그래프 (이용건수)
-    fig2.add_trace(go.Scatter(x=df2['대여일자'], y=df2['총대여량'], name="총 대여량", mode='lines+markers', marker_color='red'), secondary_y=True)
+    fig2.add_trace(go.Scatter(x=df2['년월'], y=df2['대여량'], name="총 대여량", mode='lines+markers', marker_color='red'), secondary_y=True)
     
     fig2.update_layout(title_text="강수량과 자전거 대여량 추이", height=400)
-    fig2.update_yaxes(title_text="강수량 (mm)", secondary_y=False)
+    fig2.update_yaxes(title_text="강수량", secondary_y=False)
     fig2.update_yaxes(title_text="총 대여량 (건)", secondary_y=True)
     
     st.plotly_chart(fig2, use_container_width=True)
